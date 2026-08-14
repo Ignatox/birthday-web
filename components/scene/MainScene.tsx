@@ -100,7 +100,9 @@ function SteadyBody({
 }
 
 // Objetos decorativos orbitando alrededor de la cara, como satélites —
-// no giran sobre su propio eje, se desplazan en círculo alrededor de `center`.
+// no se desplazan sobre su propio eje al girar la órbita: `rotation` es
+// una orientación fija propia del objeto (para encararlo, ej. calculadora
+// y PC "de frente"), separada del movimiento orbital de `ref`.
 function OrbitingModel({
   name,
   Component: ModelComponent,
@@ -110,6 +112,7 @@ function OrbitingModel({
   defaultSpeed,
   defaultPhaseDeg,
   defaultScale = 1,
+  defaultRotation = [0, 0, 0],
 }: {
   name: string;
   Component: ComponentType<Record<string, never>>;
@@ -119,15 +122,20 @@ function OrbitingModel({
   defaultSpeed: number;
   defaultPhaseDeg: number;
   defaultScale?: number;
+  defaultRotation?: Vec3;
 }) {
   const ref = useRef<Group>(null);
-  const { radius, height, speed, phaseDeg, scale } = useControls(name, {
-    radius: { value: defaultRadius, min: 0, max: 12, step: 0.05 },
-    height: { value: defaultHeight, min: -6, max: 6, step: 0.05 },
-    speed: { value: defaultSpeed, min: -2, max: 2, step: 0.01 },
-    phaseDeg: { value: defaultPhaseDeg, min: -180, max: 180, step: 1 },
-    scale: { value: defaultScale, min: 0.01, max: 10, step: 0.01 },
-  });
+  const { radius, height, speed, phaseDeg, scale, rotation } = useControls(
+    name,
+    {
+      radius: { value: defaultRadius, min: 0, max: 12, step: 0.05 },
+      height: { value: defaultHeight, min: -6, max: 6, step: 0.05 },
+      speed: { value: defaultSpeed, min: -2, max: 2, step: 0.01 },
+      phaseDeg: { value: defaultPhaseDeg, min: -180, max: 180, step: 1 },
+      scale: { value: defaultScale, min: 0.01, max: 10, step: 0.01 },
+      rotation: { value: defaultRotation, step: 0.01 },
+    }
+  );
 
   const phase = useMemo(() => (phaseDeg * Math.PI) / 180, [phaseDeg]);
 
@@ -143,9 +151,11 @@ function OrbitingModel({
 
   return (
     <group ref={ref} scale={scale}>
-      <Center>
-        <ModelComponent />
-      </Center>
+      <group rotation={rotation}>
+        <Center>
+          <ModelComponent />
+        </Center>
+      </group>
     </group>
   );
 }
@@ -160,6 +170,7 @@ const SATELLITES = [
     defaultSpeed: 0.3,
     defaultPhaseDeg: -90,
     defaultScale: 2.5,
+    defaultRotation: [0, 5, 0] as Vec3,
   },
   {
     key: "ps2",
@@ -170,6 +181,7 @@ const SATELLITES = [
     defaultSpeed: 0.3,
     defaultPhaseDeg: -180,
     defaultScale: 0.3,
+    defaultRotation: [1, 0, 0] as Vec3,
   },
   {
     key: "calculator",
@@ -180,6 +192,7 @@ const SATELLITES = [
     defaultSpeed: 0.3,
     defaultPhaseDeg: 0,
     defaultScale: 0.25,
+    defaultRotation: [20, 0, 0] as Vec3,
   },
   {
     key: "trophy",

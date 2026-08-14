@@ -90,6 +90,9 @@ export function HeroContent() {
           <span className={`${styles.chip} ${styles.chipPink}`}>
             {event.location}
           </span>
+          <span className={`${styles.chip} ${styles.chipAmber}`}>
+            {event.note}
+          </span>
         </div>
 
         {mapsHref ? (

@@ -1,0 +1,80 @@
+.field {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.6s ease;
+}
+
+.field.revealed {
+  opacity: 1;
+}
+
+.dots {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+      1.6px 1.6px at 15% 22%,
+      rgba(255, 255, 255, 0.9),
+      transparent
+    ),
+    radial-gradient(1.2px 1.2px at 45% 8%, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1.6px 1.6px at 72% 34%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1.2px 1.2px at 88% 12%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1.4px 1.4px at 25% 55%, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1.2px 1.2px at 58% 68%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1.6px 1.6px at 8% 80%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1.2px 1.2px at 92% 62%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1.4px 1.4px at 38% 90%, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1.2px 1.2px at 65% 95%, rgba(255, 255, 255, 0.5), transparent);
+  background-repeat: repeat;
+  background-size: 320px 280px;
+  animation: dotTwinkle 6s ease-in-out infinite;
+}
+
+@keyframes dotTwinkle {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.star {
+  position: absolute;
+  filter: drop-shadow(0 0 14px rgba(124, 92, 255, 0.35));
+  animation: twinkle 5s ease-in-out infinite;
+  will-change: opacity, transform;
+}
+
+/* En pantallas chicas hay poco lugar: se saca ~1 de cada 3 estrellas y
+   se atenúa un poco el resto para que no sature el fondo. */
+@media (max-width: 640px) {
+  .star:nth-of-type(3n) {
+    display: none;
+  }
+
+  .star {
+    filter: drop-shadow(0 0 8px rgba(124, 92, 255, 0.3));
+  }
+
+  .dots {
+    background-size: 220px 200px;
+  }
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: var(--base-opacity);
+    transform: rotate(var(--rot)) scale(1);
+  }
+  50% {
+    opacity: calc(var(--base-opacity) * 1.7);
+    transform: rotate(var(--rot)) scale(1.08);
+  }
+}

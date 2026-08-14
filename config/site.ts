@@ -20,9 +20,10 @@ export const siteConfig = {
   },
 
   event: {
-    date: "22 de Agosto del 2026",
-    time: "14 hs",
+    date: "Sábado 22 de Agosto",
+    time: "13:30 hs",
     location: "En mi casa",
+    note: "Traer bebidas",
     // TODO: dirección real (texto), para mostrarla si hace falta.
     address: "TODO",
     mapsUrl: "https://maps.app.goo.gl/vAe9pYnW4q77CbX59",
@@ -50,7 +51,7 @@ export const loadingPhrases = [
 // revealAtSongSecond) es la que la página aprovecha para precargar los modelos.
 export const introTiming = {
   countdownSeconds: 3,
-  revealAtSongSecond: 25,
+  revealAtSongSecond: 22,
 } as const;
 
 // Código de acceso de la pantalla "calculadora": DDMMAA de birthDate.

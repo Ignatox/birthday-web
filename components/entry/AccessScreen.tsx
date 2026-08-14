@@ -17,7 +17,7 @@ type Status = "idle" | "error" | "success";
 type IntroPhase = "code" | "countdown" | "loading";
 
 const KEYPAD_LAYOUT = [7, 8, 9, 4, 5, 6, 1, 2, 3];
-const PROGRESS_TICK_MS = 5000;
+const PROGRESS_TICKS = 5;
 
 // Deja lista la escena (código de la escena + los 5 .glb, escalonados)
 // sin montarla todavía — la cara primero, los satélites de a uno.
@@ -28,9 +28,11 @@ function preloadMainScene() {
 
 export function AccessScreen({
   onReveal,
+  onCodeVerified,
   soundRef,
 }: {
   onReveal: () => void;
+  onCodeVerified: () => void;
   soundRef: RefObject<Howl | null>;
 }) {
   const [digits, setDigits] = useState<string[]>([]);
@@ -106,16 +108,16 @@ export function AccessScreen({
     // se sube el volumen, sin volver a llamar a play().
     soundRef.current?.fade(0, 0.8, 1500);
 
-    const totalTicks = Math.max(
-      1,
-      Math.round((introTiming.revealAtSongSecond * 1000) / PROGRESS_TICK_MS)
-    );
-    const step = 100 / totalTicks;
+    // Tics derivados de revealAtSongSecond (no al revés): así la barra
+    // siempre pega el 100% justo cuando se revela la escena, sin importar
+    // qué tan largo sea revealAtSongSecond.
+    const tickMs = (introTiming.revealAtSongSecond * 1000) / PROGRESS_TICKS;
+    const step = 100 / PROGRESS_TICKS;
 
     const progressInterval = setInterval(() => {
       setProgress((p) => Math.min(100, p + step));
       setPhraseIndex((i) => (i + 1) % loadingPhrases.length);
-    }, PROGRESS_TICK_MS);
+    }, tickMs);
 
     const t = setTimeout(onReveal, introTiming.revealAtSongSecond * 1000);
     return () => {
@@ -136,6 +138,7 @@ export function AccessScreen({
 
     introStartedRef.current = true;
     preloadMainScene();
+    onCodeVerified();
 
     // sound.play() tiene que dispararse acá, sincrónico dentro del click
     // handler — si se llama después (setTimeout, efecto async), los

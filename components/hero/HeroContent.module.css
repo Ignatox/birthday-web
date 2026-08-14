@@ -83,6 +83,12 @@
   color: #ffc2e3;
 }
 
+.chipAmber {
+  background: rgba(255, 191, 79, 0.14);
+  border-color: rgba(255, 191, 79, 0.45);
+  color: #ffdd9e;
+}
+
 .mapsLink {
   font-size: 0.85rem;
   color: #7cf0ff;
