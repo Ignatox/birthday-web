@@ -13,8 +13,8 @@ const MainScene = dynamic(() => import("@/components/scene/MainScene"), {
 export function HeroSection() {
   return (
     <div className={styles.wrapper}>
-      {/* Posiciones ya configuradas — panel oculto. Poner hidden={false}
-          para volver a ajustar desde la UI de Leva. */}
+      {/* Posiciones ya definitivas — panel oculto para los invitados. Sacar
+          `hidden` si hace falta volver a reubicar algo. */}
       <Leva hidden />
       <div className={styles.glow} />
       <div className={styles.canvasLayer}>

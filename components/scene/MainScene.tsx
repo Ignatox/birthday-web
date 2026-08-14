@@ -67,6 +67,12 @@ function useStaggeredCount(count: number, delayMs: number) {
 // satélites como centro de órbita — sobre todo notorio a escalas grandes.
 // <Center> mide el bounding box y recentra el contenido, para que
 // `position` sea realmente el centro visual del modelo.
+//
+// El bounding box no siempre coincide con lo que a ojo se ve "centrado"
+// (geometría asimétrica del escaneo). "Cara — ajuste fino" corrige eso a
+// mano, SIN tocar `position` — así el centro de órbita de los satélites
+// no se mueve cuando se afina solo el encuadre de la cara. El offset va
+// afuera de <Center>, si fuera adentro Center lo volvería a cancelar.
 function SteadyBody({
   position,
   rotation,
@@ -76,12 +82,18 @@ function SteadyBody({
   rotation: Vec3;
   scale: number;
 }) {
+  const { offset } = useControls("Cara — ajuste fino", {
+    offset: { value: [0.05, 0, 0] as Vec3, step: 0.01 },
+  });
+
   return (
     <Float speed={1} rotationIntensity={0.08} floatIntensity={0.25}>
       <group position={position} rotation={rotation} scale={scale}>
-        <Center>
-          <Body />
-        </Center>
+        <group position={offset}>
+          <Center>
+            <Body />
+          </Center>
+        </group>
       </group>
     </Float>
   );
@@ -131,7 +143,9 @@ function OrbitingModel({
 
   return (
     <group ref={ref} scale={scale}>
-      <ModelComponent />
+      <Center>
+        <ModelComponent />
+      </Center>
     </group>
   );
 }
@@ -142,19 +156,19 @@ const SATELLITES = [
     name: "PC viejo (satélite)",
     Component: OldPc,
     defaultRadius: 4.05,
-    defaultHeight: -1.7,
+    defaultHeight: -0.41,
     defaultSpeed: 0.3,
-    defaultPhaseDeg: -151,
+    defaultPhaseDeg: -90,
     defaultScale: 2.5,
   },
   {
     key: "ps2",
     name: "Control PS2 (satélite)",
     Component: Ps2Controller,
-    defaultRadius: 3.27,
-    defaultHeight: 2.1,
+    defaultRadius: 4.52,
+    defaultHeight: -0.31,
     defaultSpeed: 0.3,
-    defaultPhaseDeg: -150,
+    defaultPhaseDeg: -180,
     defaultScale: 0.3,
   },
   {
@@ -162,20 +176,20 @@ const SATELLITES = [
     name: "Calculadora (satélite)",
     Component: Calculator,
     defaultRadius: 3.8,
-    defaultHeight: -1.9,
+    defaultHeight: -0.2,
     defaultSpeed: 0.3,
-    defaultPhaseDeg: -114,
-    defaultScale: 0.2,
+    defaultPhaseDeg: 0,
+    defaultScale: 0.25,
   },
   {
     key: "trophy",
     name: "Copa del mundo (satélite)",
     Component: WorldCupTrophy,
     defaultRadius: 2.95,
-    defaultHeight: -1.9,
+    defaultHeight: -0.25,
     defaultSpeed: 0.3,
-    defaultPhaseDeg: 30,
-    defaultScale: 2.6,
+    defaultPhaseDeg: 90,
+    defaultScale: 1.95,
   },
 ] as const;
 
@@ -187,7 +201,7 @@ export default function MainScene() {
     rotation: bodyRotation,
     scale: bodyScale,
   } = useControls("Cara (protagonista)", {
-    position: { value: [-2.0, 0.0, 0.0] as Vec3, step: 0.1 },
+    position: { value: [0.0, 0.0, -3.0] as Vec3, step: 0.1 },
     rotation: { value: [0, 0, 0] as Vec3, step: 0.01 },
     scale: { value: 10, min: 0.01, max: 10, step: 0.01 },
   });
