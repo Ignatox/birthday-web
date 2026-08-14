@@ -1,0 +1,13 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #05050a;
+  color: #fff;
+  font-family: system-ui, sans-serif;
+}

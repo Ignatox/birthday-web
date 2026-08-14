@@ -1,0 +1,96 @@
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: clamp(1.5rem, 5vw, 4rem);
+  text-align: center;
+  pointer-events: none;
+}
+
+.title {
+  margin: 0.5rem 0 0;
+  font-size: clamp(1.9rem, 5.5vw, 3.6rem);
+  font-weight: 700;
+  line-height: 1.15;
+  color: #f5f5ff;
+  max-width: 18ch;
+  text-wrap: balance;
+}
+
+.highlight {
+  background: linear-gradient(120deg, #4fd7ff, #7c5cff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.12em 0.5em;
+  border-radius: 999px;
+  background: linear-gradient(120deg, #7c5cff, #4fd7ff);
+  color: #05050a;
+  font-weight: 800;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+  pointer-events: auto;
+}
+
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.chip {
+  padding: 0.45em 1em;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: clamp(0.85rem, 2vw, 1.05rem);
+  border: 1px solid transparent;
+  backdrop-filter: blur(6px);
+  white-space: nowrap;
+}
+
+.chipCyan {
+  background: rgba(79, 215, 255, 0.14);
+  border-color: rgba(79, 215, 255, 0.45);
+  color: #9fecff;
+}
+
+.chipPurple {
+  background: rgba(124, 92, 255, 0.16);
+  border-color: rgba(124, 92, 255, 0.5);
+  color: #c9beff;
+}
+
+.chipPink {
+  background: rgba(255, 111, 181, 0.14);
+  border-color: rgba(255, 111, 181, 0.45);
+  color: #ffc2e3;
+}
+
+.mapsLink {
+  font-size: 0.85rem;
+  color: #7cf0ff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.mapsPending {
+  font-size: 0.85rem;
+  color: rgba(245, 245, 255, 0.4);
+}
