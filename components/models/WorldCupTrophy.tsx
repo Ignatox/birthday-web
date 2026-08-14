@@ -3,6 +3,8 @@ import { useGLTF } from '@react-three/drei'
 import { GLTF } from 'three-stdlib'
 import type { ThreeElements } from '@react-three/fiber'
 
+import { MODEL_URLS } from '@/lib/modelUrls'
+
 type GLTFResult = GLTF & {
   nodes: {
     ['tripo_node_f8610b72-69b1-4164-9b84-1b61374b0c3d']: THREE.Mesh
@@ -13,7 +15,7 @@ type GLTFResult = GLTF & {
 }
 
 export function WorldCupTrophy(props: ThreeElements['group']) {
-  const { nodes, materials } = useGLTF('/models/world_cup_trophy.glb') as unknown as GLTFResult
+  const { nodes, materials } = useGLTF(MODEL_URLS.worldCupTrophy) as unknown as GLTFResult
   return (
     <group {...props} dispose={null}>
       <group>
@@ -22,5 +24,3 @@ export function WorldCupTrophy(props: ThreeElements['group']) {
     </group>
   )
 }
-
-useGLTF.preload('/models/world_cup_trophy.glb')

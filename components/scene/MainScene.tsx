@@ -1,6 +1,15 @@
 "use client";
 
-import { Suspense, useMemo, useRef, type ComponentType } from "react";
+import {
+  Component,
+  Suspense,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ComponentType,
+  type ReactNode,
+} from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Center, Environment, Float, OrbitControls } from "@react-three/drei";
 import { useControls } from "leva";
@@ -13,6 +22,41 @@ import { Ps2Controller } from "@/components/models/Ps2Controller";
 import { WorldCupTrophy } from "@/components/models/WorldCupTrophy";
 
 type Vec3 = [number, number, number];
+
+// Si un modelo falla al cargar (celular flojo, red mala, etc.) que
+// desaparezca solo, sin tirar abajo el resto de la escena.
+class ModelErrorBoundary extends Component<
+  { children: ReactNode },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: unknown) {
+    console.warn("No se pudo cargar un modelo decorativo:", error);
+  }
+
+  render() {
+    return this.state.hasError ? null : this.props.children;
+  }
+}
+
+// Revela `count` elementos de a uno, cada `delayMs` — así en celulares
+// modestos no se sube todo a la GPU en el mismo frame.
+function useStaggeredCount(count: number, delayMs: number) {
+  const [revealed, setRevealed] = useState(0);
+
+  useEffect(() => {
+    if (revealed >= count) return;
+    const t = setTimeout(() => setRevealed((r) => r + 1), delayMs);
+    return () => clearTimeout(t);
+  }, [revealed, count, delayMs]);
+
+  return revealed;
+}
 
 // El modelo protagonista: fijo en el centro, con un movimiento sutil
 // (float suave) en vez del giro continuo. La rotación queda expuesta en
@@ -47,7 +91,7 @@ function SteadyBody({
 // no giran sobre su propio eje, se desplazan en círculo alrededor de `center`.
 function OrbitingModel({
   name,
-  Component,
+  Component: ModelComponent,
   center,
   defaultRadius,
   defaultHeight,
@@ -87,10 +131,55 @@ function OrbitingModel({
 
   return (
     <group ref={ref} scale={scale}>
-      <Component />
+      <ModelComponent />
     </group>
   );
 }
+
+const SATELLITES = [
+  {
+    key: "oldPc",
+    name: "PC viejo (satélite)",
+    Component: OldPc,
+    defaultRadius: 4.05,
+    defaultHeight: -1.7,
+    defaultSpeed: 0.3,
+    defaultPhaseDeg: -151,
+    defaultScale: 2.5,
+  },
+  {
+    key: "ps2",
+    name: "Control PS2 (satélite)",
+    Component: Ps2Controller,
+    defaultRadius: 3.27,
+    defaultHeight: 2.1,
+    defaultSpeed: 0.3,
+    defaultPhaseDeg: -150,
+    defaultScale: 0.3,
+  },
+  {
+    key: "calculator",
+    name: "Calculadora (satélite)",
+    Component: Calculator,
+    defaultRadius: 3.8,
+    defaultHeight: -1.9,
+    defaultSpeed: 0.3,
+    defaultPhaseDeg: -114,
+    defaultScale: 0.2,
+  },
+  {
+    key: "trophy",
+    name: "Copa del mundo (satélite)",
+    Component: WorldCupTrophy,
+    defaultRadius: 2.95,
+    defaultHeight: -1.9,
+    defaultSpeed: 0.3,
+    defaultPhaseDeg: 30,
+    defaultScale: 2.6,
+  },
+] as const;
+
+const SATELLITE_REVEAL_DELAY_MS = 500;
 
 export default function MainScene() {
   const {
@@ -103,6 +192,12 @@ export default function MainScene() {
     scale: { value: 10, min: 0.01, max: 10, step: 0.01 },
   });
 
+  // La cara aparece primero, sola; los satélites se van sumando de a uno.
+  const revealedSatellites = useStaggeredCount(
+    SATELLITES.length,
+    SATELLITE_REVEAL_DELAY_MS
+  );
+
   return (
     <Canvas
       camera={{ position: [0, 0.4, 5], fov: 42 }}
@@ -111,57 +206,39 @@ export default function MainScene() {
     >
       <Suspense fallback={null}>
         <Environment preset="night" />
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[3, 4, 5]} intensity={1} />
-        <pointLight position={[-4, 1, -2]} intensity={8} color="#7c5cff" />
-        <pointLight position={[4, -1, -2]} intensity={8} color="#4fd7ff" />
-
-        <SteadyBody
-          position={bodyPosition}
-          rotation={bodyRotation}
-          scale={bodyScale}
-        />
-        <OrbitingModel
-          name="Calculadora (satélite)"
-          Component={Calculator}
-          center={bodyPosition}
-          defaultRadius={3.8}
-          defaultHeight={-1.9}
-          defaultSpeed={0.3}
-          defaultPhaseDeg={-114}
-          defaultScale={0.2}
-        />
-        <OrbitingModel
-          name="PC viejo (satélite)"
-          Component={OldPc}
-          center={bodyPosition}
-          defaultRadius={4.05}
-          defaultHeight={-1.7}
-          defaultSpeed={0.3}
-          defaultPhaseDeg={-151}
-          defaultScale={2.5}
-        />
-        <OrbitingModel
-          name="Control PS2 (satélite)"
-          Component={Ps2Controller}
-          center={bodyPosition}
-          defaultRadius={3.27}
-          defaultHeight={2.1}
-          defaultSpeed={0.3}
-          defaultPhaseDeg={-150}
-          defaultScale={0.3}
-        />
-        <OrbitingModel
-          name="Copa del mundo (satélite)"
-          Component={WorldCupTrophy}
-          center={bodyPosition}
-          defaultRadius={2.95}
-          defaultHeight={-1.9}
-          defaultSpeed={0.3}
-          defaultPhaseDeg={30}
-          defaultScale={2.6}
-        />
       </Suspense>
+      <ambientLight intensity={0.5} />
+      <directionalLight position={[3, 4, 5]} intensity={1} />
+      <pointLight position={[-4, 1, -2]} intensity={8} color="#7c5cff" />
+      <pointLight position={[4, -1, -2]} intensity={8} color="#4fd7ff" />
+
+      <Suspense fallback={null}>
+        <ModelErrorBoundary>
+          <SteadyBody
+            position={bodyPosition}
+            rotation={bodyRotation}
+            scale={bodyScale}
+          />
+        </ModelErrorBoundary>
+      </Suspense>
+
+      {SATELLITES.slice(0, revealedSatellites).map((sat) => (
+        <Suspense key={sat.key} fallback={null}>
+          <ModelErrorBoundary>
+            <OrbitingModel
+              name={sat.name}
+              Component={sat.Component}
+              center={bodyPosition}
+              defaultRadius={sat.defaultRadius}
+              defaultHeight={sat.defaultHeight}
+              defaultSpeed={sat.defaultSpeed}
+              defaultPhaseDeg={sat.defaultPhaseDeg}
+              defaultScale={sat.defaultScale}
+            />
+          </ModelErrorBoundary>
+        </Suspense>
+      ))}
+
       <OrbitControls makeDefault enablePan={false} minDistance={3} maxDistance={8} />
     </Canvas>
   );

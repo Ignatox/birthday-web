@@ -10,6 +10,8 @@ import { useGLTF } from '@react-three/drei'
 import { GLTF } from 'three-stdlib'
 import type { ThreeElements } from '@react-three/fiber'
 
+import { MODEL_URLS } from '@/lib/modelUrls'
+
 type GLTFResult = GLTF & {
   nodes: {
     Object_2: THREE.Mesh
@@ -35,7 +37,7 @@ type GLTFResult = GLTF & {
 }
 
 export function Calculator(props: ThreeElements['group']) {
-  const { nodes, materials } = useGLTF('/models/casio_classwiz_calculator.glb') as unknown as GLTFResult
+  const { nodes, materials } = useGLTF(MODEL_URLS.calculator) as unknown as GLTFResult
   return (
     <group {...props} dispose={null}>
       <group>
@@ -53,4 +55,3 @@ export function Calculator(props: ThreeElements['group']) {
   )
 }
 
-useGLTF.preload('/models/casio_classwiz_calculator.glb')

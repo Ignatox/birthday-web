@@ -3,6 +3,8 @@ import { useGLTF } from '@react-three/drei'
 import { GLTF } from 'three-stdlib'
 import type { ThreeElements } from '@react-three/fiber'
 
+import { MODEL_URLS } from '@/lib/modelUrls'
+
 type GLTFResult = GLTF & {
   nodes: {
     ['3DModel']: THREE.Mesh
@@ -13,7 +15,7 @@ type GLTFResult = GLTF & {
 }
 
 export function Body(props: ThreeElements['group']) {
-  const { nodes, materials } = useGLTF('/models/body.glb') as unknown as GLTFResult
+  const { nodes, materials } = useGLTF(MODEL_URLS.body) as unknown as GLTFResult
   return (
     <group {...props} dispose={null}>
       <group>
@@ -22,5 +24,3 @@ export function Body(props: ThreeElements['group']) {
     </group>
   )
 }
-
-useGLTF.preload('/models/body.glb')

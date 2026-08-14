@@ -10,6 +10,8 @@ import { useGLTF } from '@react-three/drei'
 import { GLTF } from 'three-stdlib'
 import type { ThreeElements } from '@react-three/fiber'
 
+import { MODEL_URLS } from '@/lib/modelUrls'
+
 type GLTFResult = GLTF & {
   nodes: {
     defaultMaterial: THREE.Mesh
@@ -22,7 +24,7 @@ type GLTFResult = GLTF & {
 }
 
 export function OldPc(props: ThreeElements['group']) {
-  const { nodes, materials } = useGLTF('/models/old_pc.glb') as unknown as GLTFResult
+  const { nodes, materials } = useGLTF(MODEL_URLS.oldPc) as unknown as GLTFResult
   return (
     <group {...props} dispose={null}>
       <group>
@@ -32,5 +34,3 @@ export function OldPc(props: ThreeElements['group']) {
     </group>
   )
 }
-
-useGLTF.preload('/models/old_pc.glb')

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import gsap from "gsap";
 import { Howl } from "howler";
 
@@ -10,6 +10,7 @@ import {
   loadingPhrases,
   siteConfig,
 } from "@/config/site";
+import { preloadModelsStaggered } from "@/lib/preloadModels";
 import styles from "./AccessScreen.module.css";
 
 type Status = "idle" | "error" | "success";
@@ -18,13 +19,20 @@ type IntroPhase = "code" | "countdown" | "loading";
 const KEYPAD_LAYOUT = [7, 8, 9, 4, 5, 6, 1, 2, 3];
 const PROGRESS_TICK_MS = 5000;
 
-// Arranca la descarga de los 5 .glb (cada componente llama a
-// useGLTF.preload al importarse) sin montar la escena todavía.
+// Deja lista la escena (código de la escena + los 5 .glb, escalonados)
+// sin montarla todavía — la cara primero, los satélites de a uno.
 function preloadMainScene() {
   import("@/components/scene/MainScene");
+  preloadModelsStaggered();
 }
 
-export function AccessScreen({ onReveal }: { onReveal: () => void }) {
+export function AccessScreen({
+  onReveal,
+  soundRef,
+}: {
+  onReveal: () => void;
+  soundRef: RefObject<Howl | null>;
+}) {
   const [digits, setDigits] = useState<string[]>([]);
   const [status, setStatus] = useState<Status>("idle");
   const [introPhase, setIntroPhase] = useState<IntroPhase>("code");
@@ -34,7 +42,6 @@ export function AccessScreen({ onReveal }: { onReveal: () => void }) {
   const [progress, setProgress] = useState(0);
   const [phraseIndex, setPhraseIndex] = useState(0);
   const displayRef = useRef<HTMLDivElement>(null);
-  const soundRef = useRef<Howl | null>(null);
   const introStartedRef = useRef(false);
 
   // Al acertar: dispara la precarga de modelos + canción, y arranca la
@@ -115,13 +122,7 @@ export function AccessScreen({ onReveal }: { onReveal: () => void }) {
       clearInterval(progressInterval);
       clearTimeout(t);
     };
-  }, [introPhase, onReveal]);
-
-  useEffect(() => {
-    return () => {
-      soundRef.current?.unload();
-    };
-  }, []);
+  }, [introPhase, onReveal, soundRef]);
 
   function pressDigit(n: number) {
     if (status !== "idle" || digits.length >= accessCode.length) return;
