@@ -57,21 +57,7 @@ export function AccessScreen({ onReveal }: { onReveal: () => void }) {
       return () => clearTimeout(t);
     }
 
-    if (status === "success" && !introStartedRef.current) {
-      introStartedRef.current = true;
-
-      preloadMainScene();
-      soundRef.current = new Howl({
-        src: [siteConfig.audio.src],
-        html5: true,
-        volume: 0,
-        onloaderror: () => {
-          console.warn(
-            `No se pudo cargar ${siteConfig.audio.src}. Revisá public/audio/.`
-          );
-        },
-      });
-
+    if (status === "success" && introStartedRef.current) {
       gsap.fromTo(
         el,
         { scale: 1 },
@@ -109,7 +95,8 @@ export function AccessScreen({ onReveal }: { onReveal: () => void }) {
   useEffect(() => {
     if (introPhase !== "loading") return;
 
-    soundRef.current?.play();
+    // La canción ya viene sonando (muteada) desde pressDigit — acá solo
+    // se sube el volumen, sin volver a llamar a play().
     soundRef.current?.fade(0, 0.8, 1500);
 
     const totalTicks = Math.max(
@@ -140,9 +127,33 @@ export function AccessScreen({ onReveal }: { onReveal: () => void }) {
     if (status !== "idle" || digits.length >= accessCode.length) return;
     const next = [...digits, String(n)];
     setDigits(next);
-    if (next.length === accessCode.length) {
-      setStatus(next.join("") === accessCode ? "success" : "error");
-    }
+    if (next.length !== accessCode.length) return;
+
+    const correct = next.join("") === accessCode;
+    setStatus(correct ? "success" : "error");
+    if (!correct) return;
+
+    introStartedRef.current = true;
+    preloadMainScene();
+
+    // sound.play() tiene que dispararse acá, sincrónico dentro del click
+    // handler — si se llama después (setTimeout, efecto async), los
+    // navegadores bloquean el autoplay con sonido. Arranca muteada y se
+    // sube el volumen más tarde con fade(), que no tiene esa restricción.
+    soundRef.current = new Howl({
+      src: [siteConfig.audio.src],
+      html5: true,
+      volume: 0,
+      onloaderror: () => {
+        console.warn(
+          `No se pudo cargar ${siteConfig.audio.src}. Revisá public/audio/.`
+        );
+      },
+      onplayerror: () => {
+        console.warn("El navegador bloqueó la reproducción del audio.");
+      },
+    });
+    soundRef.current.play();
   }
 
   function backspace() {

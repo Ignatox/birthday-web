@@ -104,7 +104,11 @@ export default function MainScene() {
   });
 
   return (
-    <Canvas camera={{ position: [0, 0.4, 5], fov: 42 }} gl={{ alpha: true }}>
+    <Canvas
+      camera={{ position: [0, 0.4, 5], fov: 42 }}
+      gl={{ alpha: true }}
+      dpr={[1, 1.5]}
+    >
       <Suspense fallback={null}>
         <Environment preset="night" />
         <ambientLight intensity={0.5} />
