@@ -38,12 +38,13 @@ const STARS = [
   { photo: 2, top: "10%", left: "75%", size: 48, rotate: 16, opacity: 0.2, delay: 0.7 },
 ] as const;
 
-// Tamaño responsive: escala con el viewport (referencia ~1400px de
-// ancho) pero nunca pasa del tamaño de diseño ni baja de 16px — en
-// mobile los astros quedan proporcionalmente más chicos, no saturan.
+// Tamaño responsive: por debajo de ~800px de ancho escala con el
+// viewport (piso de 24px para que no desaparezcan); de ahí para arriba
+// queda en su tamaño de diseño. La versión anterior escalaba demasiado
+// agresivo y las dejaba ilegibles en mobile.
 function responsiveSize(px: number) {
-  const vw = (px / 14).toFixed(2);
-  return `clamp(16px, ${vw}vw, ${px}px)`;
+  const vw = (px / 8).toFixed(2);
+  return `clamp(24px, ${vw}vw, ${px}px)`;
 }
 
 // Fondo de fotos dispersas tipo "estrellas", fijo detrás de toda la

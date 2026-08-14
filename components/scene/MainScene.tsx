@@ -203,6 +203,7 @@ const SATELLITES = [
     defaultSpeed: 0.3,
     defaultPhaseDeg: 90,
     defaultScale: 1.95,
+    defaultRotation: [0, 0, 0] as Vec3,
   },
 ] as const;
 
@@ -261,6 +262,7 @@ export default function MainScene() {
               defaultSpeed={sat.defaultSpeed}
               defaultPhaseDeg={sat.defaultPhaseDeg}
               defaultScale={sat.defaultScale}
+              defaultRotation={sat.defaultRotation}
             />
           </ModelErrorBoundary>
         </Suspense>
